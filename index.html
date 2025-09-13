@@ -41,6 +41,19 @@
     .label{margin-top:6px; color:var(--muted); font-size:14px; letter-spacing:1px; text-transform:uppercase}
     .footer{margin-top:20px; color:var(--muted); font-size:13px}
     .happy{margin-top:22px; font-size:clamp(18px,2vw,22px); color:#bbf7d0}
+
+    /* New: CTA button that appears at target time */
+    .btn{
+      display:inline-flex; align-items:center; gap:10px; margin-top:16px;
+      padding:12px 18px; border-radius:14px; text-decoration:none; font-weight:600;
+      color:#0b1220; background:linear-gradient(180deg, #67e8f9, #60a5fa);
+      border:1px solid #33415588; box-shadow: 0 8px 20px #00000055;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow:0 10px 24px #00000066; }
+    .btn:focus{ outline:none; }
+    .btn:focus-visible{ box-shadow:0 0 0 3px #000, 0 0 0 6px var(--ring); }
+    @media (prefers-reduced-motion: reduce){ .btn{ transition:none } .btn:hover{ transform:none } }
   </style>
 </head>
 <body>
@@ -62,12 +75,16 @@
 
     <div id="status" class="happy" hidden>It’s your birthday in Korea! 🎉</div>
 
+    <!-- New: hidden CTA that reveals at the target time. Replace `surprise.html` with your page. -->
+    <a id="cta" class="btn" href="surprise.html" hidden aria-label="Open your birthday page">Open your birthday page →</a>
+
     <p class="footer" id="meta"></p>
   </main>
 
   <script>
     (function(){
-      const KST_OFFSET_MIN = 9*60; // KST = UTC+9, no DST
+      // === Config: where should the button lead? ===
+      const CTA_URL = 'surprise.html'; // change to your destination page
 
       function partsFrom(now){
         const fmt = new Intl.DateTimeFormat('en-US', {
@@ -114,7 +131,8 @@
         minutes: document.getElementById('minutes'),
         seconds: document.getElementById('seconds'),
         status: document.getElementById('status'),
-        meta: document.getElementById('meta')
+        meta: document.getElementById('meta'),
+        cta: document.getElementById('cta')
       };
 
       function plural(n, s){ return n===1 ? s.slice(0,-1) : s; }
@@ -123,21 +141,34 @@
         els.meta.textContent = `Target: September 14, ${targetYear} \u2014 midnight in Asia/Seoul (KST, UTC+9)`;
       }
 
+      // optional: allow overriding CTA via ?to=/path
+      (function initCtaHref(){
+        try{
+          const url = new URL(window.location.href);
+          const to = url.searchParams.get('to');
+          if (to) els.cta.href = to; else els.cta.href = CTA_URL;
+        }catch{ els.cta.href = CTA_URL; }
+      })();
+
       function tick(){
         const nowMs = nowKstMs();
         const { targetYear, start, end } = getTargets(nowMs);
         renderMeta(targetYear);
 
         if (nowMs >= start && nowMs < end){
-          // It's Sep 14 in Korea
+          // It's Sep 14 in Korea — reveal CTA
           els.status.hidden = false;
+          els.cta.hidden = false;
+
+          // Freeze timer at zero for the day
           els.days.textContent = '0';
           els.hours.textContent = '0';
           els.minutes.textContent = '0';
           els.seconds.textContent = '0';
-          return;
+          return; // don't keep counting
         } else {
           els.status.hidden = true;
+          els.cta.hidden = true; // keep hidden until target window starts
         }
 
         const diff = Math.max(0, start - nowMs);
@@ -156,6 +187,9 @@
         els.hours.nextElementSibling.textContent = plural(hours, 'Hours');
         els.minutes.nextElementSibling.textContent = plural(minutes, 'Minutes');
         els.seconds.nextElementSibling.textContent = plural(seconds, 'Seconds');
+
+        // (Optional) auto-redirect right at the instant it hits zero:
+        // if (diff === 0) window.location.assign(els.cta.href);
       }
 
       tick();
@@ -164,4 +198,3 @@
   </script>
 </body>
 </html>
-<!doctype html>
