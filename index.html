@@ -1,1 +1,167 @@
-http://127.0.0.1:5500/index.html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Come back on your birthday — KST Countdown</title>
+  <style>
+    :root{
+      --bg: #0f172a;           /* slate-900 */
+      --card: #111827cc;       /* gray-900 w/ alpha */
+      --text: #e5e7eb;         /* gray-200 */
+      --muted: #94a3b8;        /* slate-400 */
+      --accent: #60a5fa;       /* blue-400 */
+      --ring: #22d3ee;         /* cyan-400 */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text); background:
+        radial-gradient(60vmax 60vmax at 10% 10%, #1e293b 0, transparent 60%),
+        radial-gradient(70vmax 70vmax at 100% 0, #0b2538 0, transparent 60%),
+        var(--bg);
+      display:grid; place-items:center; padding:24px;
+    }
+    .card{
+      width:min(880px, 94vw); border-radius:24px; padding:32px; backdrop-filter: blur(10px);
+      background:linear-gradient(180deg, #0b1220bb, #0b1220aa) border-box;
+      border:1px solid #33415566; box-shadow: 0 10px 30px #00000066;
+    }
+    h1{margin:0 0 12px; font-size:clamp(28px, 3.4vw, 44px); letter-spacing:0.3px}
+    p.lead{margin:0 0 20px; color:var(--muted); font-size:clamp(14px,1.6vw,18px)}
+    .pill{
+      display:inline-flex; align-items:center; gap:10px; padding:8px 14px; border-radius:999px;
+      border:1px dashed #64748b66; color:var(--muted); font-size:14px;
+    }
+    .dot{width:8px; height:8px; border-radius:50%; background:var(--ring); box-shadow:0 0 10px var(--ring)}
+    .countdown{display:flex; gap:14px; margin-top:24px; flex-wrap:wrap}
+    .slot{flex:1 1 140px; min-width:140px; background:#0b122099; border:1px solid #1f2937; border-radius:18px; padding:18px; text-align:center}
+    .value{font-variant-numeric: tabular-nums; font-size:clamp(36px, 6vw, 64px); font-weight:700; line-height:1}
+    .label{margin-top:6px; color:var(--muted); font-size:14px; letter-spacing:1px; text-transform:uppercase}
+    .footer{margin-top:20px; color:var(--muted); font-size:13px}
+    .happy{margin-top:22px; font-size:clamp(18px,2vw,22px); color:#bbf7d0}
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-live="polite">
+    <div class="pill" title="Time zone used for this countdown">
+      <span class="dot" aria-hidden="true"></span>
+      <span><strong>Korea Standard Time</strong> (KST, UTC+9)</span>
+    </div>
+
+    <h1>Come back on your birthday 🎂</h1>
+    <p class="lead">Countdown to <strong>September 14</strong> in Korea (Asia/Seoul).</p>
+
+    <section class="countdown" aria-label="Countdown to September 14 in Korea">
+      <div class="slot"><div id="days" class="value">0</div><div class="label">Days</div></div>
+      <div class="slot"><div id="hours" class="value">0</div><div class="label">Hours</div></div>
+      <div class="slot"><div id="minutes" class="value">0</div><div class="label">Minutes</div></div>
+      <div class="slot"><div id="seconds" class="value">0</div><div class="label">Seconds</div></div>
+    </section>
+
+    <div id="status" class="happy" hidden>It’s your birthday in Korea! 🎉</div>
+
+    <p class="footer" id="meta"></p>
+  </main>
+
+  <script>
+    (function(){
+      const KST_OFFSET_MIN = 9*60; // KST = UTC+9, no DST
+
+      function partsFrom(now){
+        const fmt = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit',
+          hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+        });
+        const obj = {};
+        for (const p of fmt.formatToParts(now)) if (p.type!=='literal') obj[p.type] = p.value;
+        return {
+          y: +obj.year, m: +obj.month, d: +obj.day,
+          hh: +obj.hour, mm: +obj.minute, ss: +obj.second
+        };
+      }
+
+      // Convert a date/time expressed in KST components to a UTC epoch (ms)
+      function kstToUtcMs(y, m /*1-12*/, d, hh=0, mm=0, ss=0){
+        // subtract 9 hours to get UTC components; Date.UTC normalizes overflow
+        return Date.UTC(y, m-1, d, hh - 9, mm, ss);
+      }
+
+      // Current time in KST, expressed as UTC epoch ms
+      function nowKstMs(){
+        const p = partsFrom(new Date());
+        return kstToUtcMs(p.y, p.m, p.d, p.hh, p.mm, p.ss);
+      }
+
+      function getTargets(nowMs){
+        const nowParts = partsFrom(new Date()); // for year decision in KST
+        let targetYear = nowParts.y;
+        const startThisYear = kstToUtcMs(targetYear, 9, 14, 0, 0, 0);   // Sep 14 00:00 KST
+        const endThisYear   = kstToUtcMs(targetYear, 9, 15, 0, 0, 0);   // Sep 15 00:00 KST
+
+        if (nowMs >= endThisYear){
+          targetYear += 1; // already past the day in KST
+        }
+        const start = kstToUtcMs(targetYear, 9, 14, 0, 0, 0);
+        const end   = kstToUtcMs(targetYear, 9, 15, 0, 0, 0);
+        return { targetYear, start, end };
+      }
+
+      const els = {
+        days: document.getElementById('days'),
+        hours: document.getElementById('hours'),
+        minutes: document.getElementById('minutes'),
+        seconds: document.getElementById('seconds'),
+        status: document.getElementById('status'),
+        meta: document.getElementById('meta')
+      };
+
+      function plural(n, s){ return n===1 ? s.slice(0,-1) : s; }
+
+      function renderMeta(targetYear){
+        els.meta.textContent = `Target: September 14, ${targetYear} \u2014 midnight in Asia/Seoul (KST, UTC+9)`;
+      }
+
+      function tick(){
+        const nowMs = nowKstMs();
+        const { targetYear, start, end } = getTargets(nowMs);
+        renderMeta(targetYear);
+
+        if (nowMs >= start && nowMs < end){
+          // It's Sep 14 in Korea
+          els.status.hidden = false;
+          els.days.textContent = '0';
+          els.hours.textContent = '0';
+          els.minutes.textContent = '0';
+          els.seconds.textContent = '0';
+          return;
+        } else {
+          els.status.hidden = true;
+        }
+
+        const diff = Math.max(0, start - nowMs);
+        const totalSec = Math.floor(diff / 1000);
+        const days = Math.floor(totalSec / 86400);
+        const hours = Math.floor((totalSec % 86400) / 3600);
+        const minutes = Math.floor((totalSec % 3600) / 60);
+        const seconds = totalSec % 60;
+
+        els.days.textContent = String(days);
+        els.hours.textContent = String(hours).padStart(2,'0');
+        els.minutes.textContent = String(minutes).padStart(2,'0');
+        els.seconds.textContent = String(seconds).padStart(2,'0');
+
+        els.days.nextElementSibling.textContent = plural(days, 'Days');
+        els.hours.nextElementSibling.textContent = plural(hours, 'Hours');
+        els.minutes.nextElementSibling.textContent = plural(minutes, 'Minutes');
+        els.seconds.nextElementSibling.textContent = plural(seconds, 'Seconds');
+      }
+
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
+</body>
+</html>
+<!doctype html>
