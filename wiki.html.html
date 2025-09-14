@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>여자친구(비공개) - 나무위키 스타일 (정리본)</title>
+
+  <style>
+    /*
+    ==========================================================
+    NamuWiki-style page — CLEANED & DEDUPED CSS
+    - Single light palette in :root
+    - Dark theme overrides in :root[data-theme="dark"]
+    - Components grouped & redundant rules removed
+    ==========================================================
+    */
+
+    /* -------------------- CSS Variables (Light) -------------------- */
+    :root{
+      /* layout */
+      --container-w: 1200px;
+      --container-pad: 20px;
+      --container-border: 2px;
+      --container-radius: 6px;
+      --radius: 6px;
+      --header-h: 56px;
+
+      /* palette */
+      --bg:#f6f7f9;
+      --card:#ffffff;
+      --card-soft:#fbfbfb;
+      --card-alt:#f7f9fc;
+      --text:#202124;
+      --muted:#5f6368;
+      --accent:#20b27a;
+      --border:#c8ccd1;
+      --border-strong:#aab1ba;
+      --chip:#eef3f7;
+      --shadow:0 1px 2px rgba(0,0,0,.06);
+
+      /* links */
+      --blue:#3366cc;
+      --blue-hover:#447ff5;
+
+      /* header gradient (light) */
+      --header1:#1fd39b;
+      --header2:#20b27a;
+
+      /* content width for sticky rhs calc */
+      --content-max: 1100px;
+    }
+
+    /* -------------------- Dark Theme -------------------- */
+    :root[data-theme="dark"]{
+      --bg:#0b0d10;
+      --card:#151a20;
+      --card-soft:#1b2027;
+      --card-alt:#1d2128;
+      --text:#e7e7ea;
+      --muted:#a0a3ac;
+      --accent:#ffb020;      /* amber accent */
+      --border:#292f36;
+      --border-strong:#3a414a;
+      --chip:#1b2027;
+      --shadow:0 1px 2px rgba(0,0,0,.45);
+      --blue:#ffb020;        /* links in dark → amber */
+      --blue-hover:#ffd166;
+      --header1:#2f343a;     /* header gradient (dark) */
+      --header2:#23272c;
+    }
+
+    /* -------------------- Base Reset -------------------- */
+    *{ box-sizing:border-box }
+    html{ scroll-behavior:smooth }
+    body{
+      margin:0; padding-top: var(--header-h);
+      background:var(--bg); color:var(--text);
+      font:14px/1.6 "Noto Sans KR","Apple SD Gothic Neo",system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    a{ color:var(--blue); text-decoration:none }
+    a:hover{ color:var(--blue-hover); text-decoration:underline }
+    img, video, svg{ filter:none !important; }
+
+    /* -------------------- Top Bar -------------------- */
+    .sitebar{
+      position:fixed; top:0; left:0; right:0; z-index:9999;
+      background:linear-gradient(180deg,var(--header1),var(--header2));
+      color:#fff;
+    }
+    .sitebar .inner{ max-width:1160px; margin:0 auto; padding:10px 14px; display:flex; align-items:center; gap:14px }
+    .logo{ display:flex; gap:8px; align-items:center; color:#fff; text-decoration:none; font-weight:900 }
+    .snav{ display:flex; gap:14px }
+    .snav a{ color:#fff; text-decoration:none; opacity:.95; padding:6px 8px; border-radius:6px }
+    .snav a:hover{ background:rgba(255,255,255,.16) }
+    .search{ flex:1; display:flex; gap:8px; align-items:center; position:relative }
+    .search input{ width:100%; padding:8px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.6); background:#fff; color:#111 }
+    :root[data-theme="dark"] .search input{ background:#0f1216; color:var(--text); border:1px solid var(--border-strong); }
+    .icon-btn{ width:36px;height:36px;display:grid;place-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);border-radius:8px;cursor:pointer }
+    .icon-btn svg{ width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2 }
+    .icon-btn:hover{ background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.55) }
+
+    /* user menu */
+    .user-menu{
+      position:absolute; top: calc(100% + 8px); right: 0; min-width: 220px;
+      background: var(--card); color: var(--text);
+      border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.15);
+      padding: 6px; z-index: 10000;
+    }
+    .user-menu .mi{ all:unset; display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px; border-radius:8px; cursor:pointer }
+    .user-menu .mi:hover{ background: var(--chip) }
+    .user-menu svg{ width:18px; height:18px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    /* -------------------- Page Grid -------------------- */
+    .page{ max-width:1400px; margin:16px auto 48px; padding:0 16px; display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:18px; align-items:start }
+    .rhs,.rhs-sticky{ grid-column:2; align-self:start }
+    @media (max-width:1100px){ .page{ grid-template-columns:1fr } .rhs,.rhs-sticky{ grid-column:auto; position:static } }
+
+    /* -------------------- Cards & Containers -------------------- */
+    .container{
+      max-width:var(--container-w); margin:16px auto 48px; padding:var(--container-pad);
+      background:var(--card); border:var(--container-border) solid var(--border-strong);
+      box-shadow:var(--shadow); border-radius:var(--container-radius);
+    }
+    .block{ background:var(--card); border:1px solid var(--border-strong); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; margin-bottom:12px }
+    .block .b-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; background:var(--card-soft); }
+    .block .b-body{ padding:12px 14px }
+    .strip{ background:var(--card); border:1px solid var(--border-strong); border-radius:var(--radius); padding:10px 12px; margin-bottom:12px }
+    .notice-strip{ background:var(--card); border:1px solid var(--border-strong); border-left:4px solid var(--accent); border-radius:var(--radius); padding:10px 12px; margin-bottom:10px; display:flex; gap:8px; align-items:flex-start }
+
+    /* -------------------- Toolbar / Tools -------------------- */
+    .tools{ display:flex; align-items:center; gap:8px }
+    .tools .count,.bubble{ height:22px; min-width:28px; padding:0 6px; border-radius:999px; background:#eef3f7; border:1px solid var(--border-strong); font-weight:700; font-size:12px; display:inline-flex; align-items:center; justify-content:center }
+    .seg{ display:inline-flex; background:var(--card); border:1px solid var(--border-strong); border-radius:8px; overflow:hidden; box-shadow:var(--shadow) }
+    .seg button{ all:unset; display:flex; align-items:center; gap:6px; padding:8px 14px; font-size:13px; color:var(--text); cursor:pointer }
+    .seg button + button{ border-left:1px solid var(--border-strong) }
+    .seg svg{ width:16px; height:16px; stroke:#6b7280; stroke-width:1.8; fill:none }
+    .tools .more{ all:unset; display:grid; place-items:center; cursor:pointer; width:38px; height:34px; border:1px solid var(--border-strong); border-radius:8px; background:var(--card) }
+
+    /* -------------------- Category Bar -------------------- */
+    .cat-bar{ font-size:12px; line-height:1.6; color:var(--text); background:var(--card); border:1px solid var(--border-strong); border-radius:6px; padding:6px 8px; display:flex; align-items:center; gap:6px }
+    .cat-label{ font-weight:600; color:var(--muted); margin-right:2px; white-space:nowrap }
+    .cat-links{ display:flex; flex-wrap:wrap; align-items:center; gap:0; min-width:0 }
+    .cat-links a{ color:var(--blue) }
+    .cat-links a + a::before{ content:" | "; color:#a2a9b1; margin:0 4px }
+    .cat-more{ margin-left:auto }
+    .cat-more a{ display:inline-block; font-size:12px; line-height:1; padding:4px 8px; color:var(--text); background:var(--card); border:1px solid var(--border-strong); border-radius:4px }
+
+    /* -------------------- Info Box -------------------- */
+    .infobox .head{ display:flex; align-items:center; justify-content:center; gap:16px; padding:12px 16px; background:var(--card-soft) }
+    .sign{ display:flex; align-items:center; padding-right:14px; margin-right:14px; border-right:2px solid var(--border-strong) }
+    .who{ text-align:center; line-height:1.2 }
+    .who .ko{ font-weight:800; font-size:18px }
+    .who .en{ color:#6b7280; font-size:12px }
+
+    .info-matrix{ border-top:1px solid var(--border-strong); border-bottom:1px solid var(--border-strong) }
+    .info-matrix .row{ display:grid; grid-template-columns:repeat(3,1fr) }
+    .info-matrix .row + .row{ border-top:1px solid var(--border-strong) }
+    .info-matrix .cell{ padding:10px 12px; text-align:center; font-size:13px; background:var(--card); border-right:1px solid var(--border-strong) }
+    .info-matrix .cell:last-child{ border-right:0 }
+    .info-matrix .sub .cell{ background:var(--card-soft); font-weight:600 }
+    .info-matrix .alt .cell{ background:var(--card-alt) }
+
+    /* -------------------- TOC -------------------- */
+    .cols{ display:grid; grid-template-columns:200px 1fr; gap:220px; align-items:start }
+    .toc a{ color:var(--blue) }
+
+    /* -------------------- Lead & Bio Cards -------------------- */
+    .lead-card{ max-width:450px; width:100%; margin:0 auto }
+    .lead-card .name{ font-weight:900; font-size:18px; text-align:center; color:var(--blue) }
+    .lead-card img{ display:block; width:100%; height:auto }
+    .bio-card{ max-width:450px; width:100%; margin:12px auto 0 }
+
+    /* -------------------- Key/Value Table -------------------- */
+    .kv-table{ display:grid; grid-template-columns:120px 1fr; border-top:1px solid var(--border-strong) }
+    .kv-table > div{ padding:10px 12px; border-bottom:1px solid var(--border-strong) }
+    .kv-table .k{ background:var(--card-soft); font-weight:700; border-right:1px solid var(--border-strong); white-space:nowrap }
+    .kv-table .v{ background:var(--card) }
+    .kv-table .ref{ color:#6b7280; font-size:11px; margin-left:2px }
+
+    /* -------------------- Article Sections -------------------- */
+    .article{ max-width:980px; margin:0 auto; counter-reset:sec }
+    details.sec{ border:0; background:transparent; border-radius:0; box-shadow:none; margin:0; counter-increment:sec; counter-reset:sub }
+    details.sec > summary{ display:flex; align-items:center; gap:8px; padding:12px 0; border-bottom:1px solid var(--border-strong); list-style:none; cursor:pointer; user-select:none; background:transparent }
+    summary::-webkit-details-marker{ display:none }
+    .caret{ width:0;height:0;border:6px solid transparent; border-left-color:var(--blue); transform:rotate(0deg); transition:transform .18s ease }
+    details[open] > summary .caret{ transform:rotate(90deg) }
+    .num::before{ content: counter(sec) ". "; font-weight:700; color:var(--blue); font-size:20px }
+    .title{ font-weight:800; font-size:20px; color:var(--blue); letter-spacing:-0.2px; flex:1 1 auto }
+    .edit{ margin-left:auto; font-size:12px; color:var(--blue) }
+    .content{ padding:12px 0 18px; line-height:1.8 }
+
+    details.subsec{ border:0; background:transparent; border-radius:0; margin-left:16px; counter-increment:sub }
+    details.subsec > summary{ padding:10px 0; border-bottom:1px solid var(--border-strong) }
+    .subnum::before{ content: counter(sec) "." counter(sub) ". "; font-weight:700; color:var(--blue) }
+
+    /* -------------------- Right Sidebar (sticky helper) -------------------- */
+    .rhs-sticky{ position:fixed; bottom:24px; right: calc((100vw - var(--content-max))/2); z-index:1000; width:320px }
+
+    /* -------------------- Floating Action Buttons -------------------- */
+    .fab-rail{ position:fixed; right:max(12px, calc((100vw - 2200px)/2 + 320px + 16px)); bottom:24px; display:flex; flex-direction:column; gap:12px; z-index:9999 }
+    .fab-rail svg{ width:20px;height:20px;stroke:#6b7280;stroke-width:2;fill:none }
+    .fab-toc{ width:48px;height:48px;display:grid;place-items:center;background:var(--card);border:1px solid var(--border-strong);border-radius:8px;box-shadow:0 8px 18px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.06);cursor:pointer }
+    .fab-split{ width:48px;background:var(--card);border:1px solid var(--border-strong);border-radius:8px;overflow:hidden;box-shadow:0 8px 18px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.06) }
+    .fab-split button{ all:unset;width:100%;height:48px;display:grid;place-items:center;cursor:pointer }
+    .fab-split button+button{ border-top:1px solid var(--border-strong) }
+
+    /* -------------------- Social Buttons -------------------- */
+    .sns{ display:flex; gap:8px; align-items:center }
+    .sns a{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:999px; border:1px solid var(--border-strong); background:var(--card); color:var(--text) }
+    .sns a svg{ width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8 }
+    .sns a svg .fill{ fill: currentColor }
+
+    /* -------------------- Signature (theme adaptive) -------------------- */
+    .signature{ color: var(--text) }
+    .signature .sig-svg{ width:180px; height:auto; display:block; filter: drop-shadow(0 0 1px rgba(0,0,0,.25)) }
+    /* --- responsive anchors for sidebar + FABs --- */
+:root{
+  /* page + sidebar widths used by the formulas below */
+  --page-max: 1400px;   /* same as .page max-width */
+  --sidebar-w: 320px;   /* right column width */
+}
+
+/* ensure the grid uses the same page max */
+.page{ max-width: var(--page-max); }
+
+/* sticky quick-links: hug the page's right gutter, not the viewport edge */
+.rhs-sticky{
+  position: fixed;
+  width: var(--sidebar-w);
+  /* clamp so it never goes off-screen nor too far in */
+  right: clamp(12px, calc((100vw - var(--page-max)) / 2), 10vw);
+  /* leave room for the FAB stack */
+  bottom: 96px;
+  z-index: 1000;
+}
+
+/* FAB rail: sit just inside the same gutter, but a tad inward */
+.fab-rail{
+  position: fixed;
+  right: clamp(12px, calc((100vw - var(--page-max)) / 2 + 12px), 12vw);
+  bottom: 24px;
+}
+
+/* widgets should always fill the column */
+.rhs .widget,
+.rhs-sticky .widget{ width: 100%; }
+
+/* long lines in the right lists shouldn’t push the box */
+.widget .list a{
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* when the layout collapses to one column, stop fixing things */
+@media (max-width: 1280px){
+  .rhs-sticky{
+    position: static;
+    width: auto;
+    bottom: auto;
+    right: auto;
+    margin-top: 16px;
+  }
+  .fab-rail{
+    right: 12px;
+    bottom: 16px;
+  }
+}
+
+/* already present, but keep it for smaller breakpoints */
+@media (max-width: 1100px){
+  .page{ grid-template-columns: 1fr; }
+  .rhs, .rhs-sticky{ grid-column:auto; position:static; }
+}
+  .fab-rail{ right: max(12px, calc((100vw - 2200px)/2 + 320px + 16px)); }
+  /* Right column: stack widgets and use the same card chrome */
+.rhs,
+.rhs-sticky{
+  display:grid;
+  gap:16px;
+  align-self:start;
+}
+/* round Spotify icon button in the FAB rail */
+.spotify-fab{
+  width:48px;height:48px;display:grid;place-items:center;
+  background:#1db954;border:1px solid var(--border-strong);
+  border-radius:999px; box-shadow:0 8px 18px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.06);
+  cursor:pointer; color:#fff;
+}
+.spotify-fab svg{ width:22px;height:22px; fill:currentColor }
+
+/* small slide-up panel near the FAB rail */
+.spotify-panel{
+  position:fixed;
+  right: clamp(12px, calc((100vw - var(--page-max)) / 2 + 12px), 12vw);
+  bottom: 84px;                     /* sits above the FAB rail */
+  width: min(360px, 92vw);
+  background: var(--card);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  overflow: hidden;
+
+  opacity: 0; pointer-events: none; transform: translateY(8px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.spotify-panel.open{ opacity:1; pointer-events:auto; transform:none; }
+.spotify-panel iframe{ display:block; width:100%; height:152px; border:0 }
+
+
+/* Put the sticky rail back inside the grid (not fixed) */
+.rhs-sticky{
+  position: sticky;
+  top: calc(var(--header-h) + 6px);
+  right: auto;   /* kill the previous right: calc(...) */
+  bottom: auto;  /* kill the previous bottom */
+  width: 320px;  /* same width as your right column */
+}
+
+/* Card look for both right rails */
+.rhs .widget,
+.rhs-sticky .widget{
+  background: var(--card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Widget header + body */
+.widget .w-head{
+  padding: 12px 14px;
+  font-weight: 800;
+  background: var(--card-soft);
+  border-bottom: 1px solid var(--border-strong);
+}
+.widget .b-body,
+.widget .list{ padding: 10px 12px; }
+
+.widget .list a{
+  display:block;
+  padding:8px 10px;
+  text-decoration:none;
+  color: var(--blue);
+  border-radius:6px;
+}
+.widget .list a:hover{
+  background: var(--chip);
+  text-decoration:none;
+}
+/* --- Mobile: stack TOC and lead card so the image stays visible --- */
+@media (max-width: 900px){
+  .cols{
+    grid-template-columns: 1fr;   /* one column */
+    gap: 12px;                     /* small gap */
+  }
+  .cols .lead-card{ order: 1; }    /* image first */
+  .cols .toc{ order: 2; }          /* TOC below */
+}
+
+/* Optional: tighten other grids on small screens */
+@media (max-width: 600px){
+  .info-matrix .row{ grid-template-columns: 1fr; }
+  .kv-table{ grid-template-columns: 1fr; }
+  .kv-table .k{ border-right: 0; }
+}
+
+/* Safety: make sure images scale down */
+.lead-card img{ display:block; width:100%; height:auto; max-width:100%; }
+/* --- Fix mobile title like namu.wiki --- */
+.title-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;                 /* allow wrapping */
+}
+
+.title-row h1{
+  margin:0;
+  line-height:1.2;
+  font-size:clamp(22px, 5.5vw, 32px);
+  flex:1 1 420px;                 /* keep some width; pushes tools to next line */
+  word-break:keep-all;            /* no per-char breaks (Korean friendly) */
+  overflow-wrap:break-word;       /* only break when needed */
+  white-space:normal;
+  text-wrap:balance;              /* nicer line breaks (supported browsers) */
+}
+
+.tools{ flex:0 0 auto; }          /* don’t let tools steal width */
+
+/* If you prefer the tools *always* under the title on narrow screens */
+@media (max-width:640px){
+  .title-row{ flex-direction:column; align-items:flex-start; }
+}
+/* Mobile: put the gap after the "최근 수정" line */
+@media (max-width: 900px){
+  .title-row{
+    flex-wrap: wrap;              /* let tools drop under the title */
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 0;             /* remove gap BEFORE "최근 수정" */
+  }
+  .title-row h1{
+    font-size: 28px;
+    line-height: 1.2;
+  }
+  .title-row .tools{
+    order: 2;                     /* tools under the title */
+    width: 100%;
+  }
+  .meta-line{
+    margin: 12px 0 14px !important; /* add the gap AFTER "최근 수정" */
+  }
+}
+/* === Vintage Letter Popup (namespaced) =================================== */
+:root{
+  --letter-ink:#4d4034;
+  --letter-parchment-1:#f7ecd3;
+  --letter-parchment-2:#ead7b6;
+  --letter-rule:rgba(70,55,40,.22);
+  --letter-frame:#c9b397;
+  --letter-shadow:0 18px 50px rgba(0,0,0,.35);
+}
+:root[data-theme="dark"]{
+  /* looks nicer over dark pages */
+  --letter-shadow:0 22px 60px rgba(0,0,0,.6);
+}
+
+/* Floating letter icon (bottom-left) */
+.letter-fab{
+  position:fixed;
+  left: max(16px, env(safe-area-inset-left) + 12px);
+  bottom: max(16px, env(safe-area-inset-bottom) + 12px);
+  width:64px;height:64px;border-radius:16px;
+  display:grid;place-items:center;
+  background:linear-gradient(180deg,#f2e6cf,#e6d2af);
+  border:1.5px solid rgba(70,45,25,.45);
+  box-shadow:0 10px 26px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.55);
+  color:#3f3328;text-decoration:none;
+  z-index:11000; transition:transform .15s cubic-bezier(.22,.61,.36,1);
+}
+.letter-fab:hover{ transform:translateY(-1px) }
+.letter-fab:active{ transform:scale(.97) }
+.letter-fab svg{ width:28px;height:28px }
+
+/* Backdrop + modal */
+.letter-backdrop{
+  position:fixed; inset:0; display:grid; place-items:center;
+  padding:24px; z-index:11050; visibility:hidden; pointer-events:none;
+  background:rgba(23,16,10,.45); backdrop-filter:blur(3px);
+  opacity:0; transform:scale(.985);
+  transition:opacity 240ms cubic-bezier(.22,.61,.36,1),
+             transform 240ms cubic-bezier(.22,.61,.36,1),
+             visibility 0s linear 240ms;
+}
+.letter-backdrop.open{
+  visibility:visible; pointer-events:auto; opacity:1; transform:none;
+  transition:opacity 260ms cubic-bezier(.22,.61,.36,1),
+             transform 260ms cubic-bezier(.22,.61,.36,1);
+}
+
+/* Letter card */
+.letter-card{
+  width:min(760px,92vw);
+  position:relative;
+  background:
+    radial-gradient(800px 300px at 50% -10%, rgba(255,255,255,.25), transparent 60%),
+    linear-gradient(180deg, var(--letter-parchment-1), var(--letter-parchment-2));
+  border:1px solid var(--letter-frame);
+  border-radius:18px;
+  box-shadow:var(--letter-shadow);
+  padding:40px 34px 44px;
+  isolation:isolate;
+  display:flex; flex-direction:column;
+  max-height:min(80vh, 760px);
+}
+.letter-card::before,.letter-card::after{
+  content:""; position:absolute; left:32px; right:32px; height:2px;
+  background:linear-gradient(90deg, transparent, rgba(70,55,40,.45), transparent);
+}
+.letter-card::before{ top:30px } .letter-card::after{ bottom:30px }
+
+.letter-corners{ pointer-events:none }
+.letter-corners>span{ position:absolute; width:86px; height:86px; opacity:.65;
+  background-size:contain; background-repeat:no-repeat;
+  filter:drop-shadow(0 1px 0 rgba(0,0,0,.06));
+}
+
+.lc-tl{ top:10px; left:10px;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="86" height="86" viewBox="0 0 86 86"><path d="M68 18c-10 8-15 12-26 13M18 68c8-10 12-15 13-26M18 34c8 1 13-3 20-10M34 18c1 8-3 13-10 20" fill="none" stroke="%239a9a9a" stroke-width="3" stroke-linecap="round"/></svg>');
+}
+.lc-tr{ top:10px; right:10px; transform:scaleX(-1); background-image:inherit }
+.lc-bl{ bottom:10px; left:10px; transform:scaleY(-1); background-image:inherit }
+.lc-br{ bottom:10px; right:10px; transform:scale(-1); background-image:inherit }
+
+.letter-topbar{ display:flex; align-items:center; gap:10px; margin-bottom:14px }
+.letter-seal{ width:42px;height:42px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#fff9ef,#efe3cd);border:1px solid rgba(60,40,20,.24);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);
+}
+.letter-title{ font-weight:700; font-size:18px; letter-spacing:.2px }
+.letter-muted{ color:rgba(40,32,24,.7); font-size:14px }
+
+.letter-close{
+  position:absolute; top:8px; right:8px; z-index:2;
+  width:34px;height:34px;border-radius:3px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#fff9ef,#efe3cd);
+  border:1px solid rgba(60,40,20,.24);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);
+  cursor:pointer; transition:transform .12s cubic-bezier(.22,.61,.36,1)
+}
+.letter-close:hover{ transform:translateY(-1px) }
+
+.paper-body{
+  flex:1; overflow:auto; padding-right:8px; margin-top:8px;
+  line-height:1.7; font-size:17px; color:var(--letter-ink);
+  text-shadow:0 1px 0 rgba(255,255,255,.35);
+  background:repeating-linear-gradient(to bottom, transparent 0 32px, var(--letter-rule) 32px 33px);
+  border-radius:1cqb;
+}
+.paper-body::-webkit-scrollbar{ width:10px }
+.paper-body::-webkit-scrollbar-thumb{ background:#cbb79b; border-radius:10px; border:2px solid #f0e3cc }
+.paper-body::-webkit-scrollbar-track{ background:#f0e3cc; border-radius:10px }
+
+/* little pulse when it minimizes into the icon */
+.letter-pulse{ animation:letterPulse 650ms cubic-bezier(.22,.61,.36,1) }
+@keyframes letterPulse{
+  0%{ box-shadow:0 0 0 0 rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.6)}
+  100%{ box-shadow:0 0 0 34px rgba(0,0,0,0)}
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .letter-backdrop, .letter-fab { transition:none !important }
+}
+/* lock page scroll when popup is open */
+body.no-scroll { overflow: hidden; }
+
+/* existing backdrop uses blur */
+.letter-backdrop{
+  /* your existing styles already define this; shown here for context */
+  background: rgba(23,16,10,.45);
+  backdrop-filter: blur(3px);
+}
+
+/* first-open: make the backdrop fully opaque so nothing shows through */
+.letter-backdrop.obscure{
+  background: #000;
+  backdrop-filter: none;
+}
+/* Letter: always fill the screen vertically; keep current width */
+.letter-backdrop .letter-card{
+  height: calc(100svh - 80px);   /* full-height letter with small top/bottom margin */
+  margin: 12px 0;
+  max-height: none;               /* override previous max-height */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Only the letter body scrolls */
+.paper-body{
+  flex: 1;
+  overflow: auto;
+}
+
+/* Lock page scroll when letter is open */
+body.no-scroll{ overflow: hidden; }
+
+/* a tad tighter on very small screens */
+@media (max-width: 600px){
+  .letter-backdrop .letter-card{
+    height: calc(100svh - 12px);
+    margin: 6px 0;
+  }
+}
+/* Lock page scroll when the letter is open */
+body.no-scroll{ overflow:hidden }
+
+/* Backdrop: full cover (no page peeking) */
+.letter-backdrop{
+  padding:0;
+  background:#000;        /* safety color behind images */
+  backdrop-filter:none;
+  overflow:hidden;
+}
+
+/* Stage: left | center | right columns */
+.letter-stage{
+  width:100%;
+  height:100svh;
+  display:grid;
+  grid-template-columns: 1fr min(960px, 96vw) 1fr; /* center column width cap */
+}
+
+/* Side image panels */
+.letter-side{ position:relative; }
+.letter-side::before{
+  content:"";
+  position:absolute; inset:0;
+  background-position:center; background-repeat:no-repeat; background-size:cover;
+}
+/* use CSS vars (set inline) so you can change images per page */
+.letter-side.left::before {  background-image: var(--letter-left-img, linear-gradient(90deg,#111,#222)); }
+.letter-side.right::before{  background-image: var(--letter-right-img,linear-gradient(270deg,#111,#222)); }
+
+/* Beige center behind the letter (subtle parchment tone) */
+.letter-center{
+  display:grid; place-items:center;
+  background: linear-gradient(180deg, var(--letter-parchment-1), var(--letter-parchment-2));
+}
+
+/* Letter: always full height; keep your existing width */
+.letter-backdrop .letter-card{
+  grid-column: 1 / -1;           /* let it center via .letter-center grid */
+  height: calc(100svh - 24px);   /* full-viewport minus small margins */
+  margin: 12px 0;
+  max-height: none;              /* override any previous max-height */
+  display: flex; flex-direction: column;
+}
+
+/* Only the paper scrolls */
+.paper-body{ flex:1; overflow:auto; }
+
+/* tighter on very small screens */
+@media (max-width:600px){
+  .letter-backdrop .letter-card{
+    height: calc(100svh - 12px);
+    margin: 6px 0;
+  }
+}
+.letter-title{ color: var(--letter-ink); }   /* dark brown */
+.letter-seal svg{ display:block; }           /* avoid inline baseline gap */
+/* tighten bottom spacing */
+.page      { margin: 16px auto 8px; }        /* or 0 */
+.container { margin: 16px auto 8px; }        /* or 0 */
+
+/* optional: prevent trailing space from last block/content */
+.block:last-child,
+.article > *:last-child { margin-bottom: 0; }
+/* put this near the end of your <style> so it wins */
+.sns .spotify-fab{
+  all: unset;                            /* reset default button styles */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #1DB954;                   /* Spotify green */
+  box-shadow: 0 1px 2px rgba(0,0,0,.18);
+  cursor: pointer;
+}
+
+.sns .spotify-fab svg{
+  width: 16px;                           /* icon size */
+  height: 16px;
+}
+
+.sns .spotify-fab svg path{
+  fill: #fff;                            /* make the glyph white */
+}
+
+
+  </style>
+
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="sitebar">
+    <div class="inner">
+      <a class="logo" href="">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="4"/><path d="M6 9h12M6 13h8M6 17h5"/></svg>
+        나무위키
+      </a>
+      <nav class="snav">
+        <a href="">최근 변경</a>
+        <a href="">최근 토론</a>
+        <a href="">특수 기능 ▾</a>
+      </nav>
+      <div class="search">
+        <input placeholder="여기에서 검색" aria-label="검색" />
+        <button class="icon-btn" id="btnUser" title="사용자" aria-label="사용자">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"></circle>
+            <path d="M4 20c0-4.5 3.5-8 8-8s8 3.5 8 8"></path>
+          </svg>
+        </button>
+        <div id="userMenu" class="user-menu" hidden>
+          <button class="mi" data-theme="light">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/><circle cx="12" cy="12" r="8" fill="none"></circle></svg>
+            밝은 화면으로
+          </button>
+          <button class="mi" data-theme="dark">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            어두운 화면으로
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- LEFT COLUMN -->
+    <section class="container">
+      <div class="title-row" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px">
+        <h1 style="margin:0; font-size:32px">여자친구 (비공개)</h1>
+        <div class="tools" aria-label="문서 도구">
+          <div class="seg" role="group" aria-label="문서 도구 버튼">
+            <button title="즐겨찾기" aria-label="즐겨찾기">
+              <svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1L3.2 9.4l6.1-.9z"/></svg>
+            </button>
+            <button>
+              <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 100-8 4 4 0 000 8z"/><path d="M4 20a8 8 0 1116 0"/></svg>
+              편집 요청
+            </button>
+            <button>
+              <svg viewBox="0 0 24 24"><path d="M21 12a7 7 0 10-3 5.7L21 20l-1.3-3.3A6.8 6.8 0 0021 12z"/></svg>
+              토론
+            </button>
+            <button>
+              <svg viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 013 3v13H8a3 3 0 01-3-3zM5 18h13"/></svg>
+              역사
+            </button>
+          </div>
+          <button class="more" aria-label="더 보기">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+              <circle cx="12" cy="6"  r="1.6"/>
+              <circle cx="12" cy="12" r="1.6"/>
+              <circle cx="12" cy="18" r="1.6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="meta-line" style="color:var(--muted); font-size:13px; margin:4px 0 12px">최근 수정 시각: 2025-09-13 00:20:03</div>
+
+      <div class="cat-bar" role="navigation" aria-label="분류">
+        <span class="cat-label">분류:</span>
+        <nav class="cat-links" aria-label="분류 링크">
+          <a href="">전예진</a>
+          <a href="https://namu.wiki/w/%EB%B6%84%EB%A5%98:2023%EB%85%84%20%EB%8D%B0%EB%B7%94">2023년 데뷔</a>
+          <a href="https://namu.wiki/w/%EB%B6%84%EB%A5%98:2000%EB%85%84%20%EC%B6%9C%EC%83%9D">2000년 출생</a>
+          <a href="jeju.html">제주도 여행</a>
+          <a href="https://namu.wiki/w/%EB%B6%84%EB%A5%98:%EA%B0%95%EC%84%9C%EA%B5%AC(%EC%84%9C%EC%9A%B8)%20%EC%B6%9C%EC%8B%A0%20%EC%9D%B8%EB%AC%BC">강서구 출신인물</a>
+          <a href="https://namu.wiki/w/%EC%83%81%EC%A7%80%EC%B4%88%EB%93%B1%ED%95%99%EA%B5%90">상지초등학교 출신</a>
+          <a href="">토끼중학교 출신</a>
+            <a href="https://namu.wiki/w/%EC%98%88%EC%9D%BC%EC%97%AC%EC%9E%90%EA%B3%A0%EB%93%B1%ED%95%99%EA%B5%90">예일여자고등학교 출신</a>
+          <a href="https://namu.wiki/w/%EB%8F%99%EB%82%A8%EB%B3%B4%EA%B1%B4%EB%8C%80%ED%95%99%EA%B5%90">동남보건대학교 출신</a>
+        </nav>
+        <span class="cat-more"><a href="">더 보기</a></span>
+      </div>
+  
+
+      <!-- INFOBOX -->
+      <section class="block infobox" aria-label="요약 정보">
+        <div class="head">
+          <div class="signature" aria-label="Yejin signature">
+            <svg viewBox="0 0 420 120" class="sig-svg" role="img">
+              <style>
+                @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+                .sig-text{ font-family:'Great Vibes', cursive; font-size:92px; }
+                
+              </style>
+              <text x="6" y="86" class="sig-text" fill="currentColor">Yejin</text>
+              <path d="M12 98c60-26 110-26 160 0 34 18 84 22 140 2" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="who">
+            <div class="ko">전예진</div>
+            <div class="en">Girlfriend (Private)</div>
+          </div>
+        </div>
+        <div class="info-matrix">
+          <div class="row">
+            <div class="cell">토끼</div>
+            <div class="cell">공주</div>
+            <div class="cell">애기</div>
+          </div>
+          <div class="row">
+            <div class="cell">까꿍이/까이</div>
+            <div class="cell">푸커애공토누</div>
+            <div class="cell">메시</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TWO COLUMNS -->
+      <div class="cols">
+        <!-- TOC -->
+        <aside id="toc" class="block toc">
+          <div class="b-head">목차</div>
+          <div class="b-body">
+            <ol>
+              <li><a href="#overview">개요</a></li>
+              <li><a href="#early">어린 시절</a></li>
+              <li><a href="#elem">초등학교 시절</a></li>
+              <li><a href="#middle">중학교 시절</a></li>
+              <li><a href="#high">고등학교 시절</a></li>
+              <li><a href="#college">대학 시절</a></li>
+              <li><a href="#career">성인/커리어</a></li>
+              <li><a href="#nursing">의료·간호 경력</a></li>
+              <li><a href="#etc">별명·취미·기타</a></li>
+              <li><a href="#future">소문 &amp; 미래</a></li>
+            </ol>
+          </div>
+        </aside>
+
+        <!-- Lead / Bio -->
+        <section class="block lead-card">
+          <div class="b-head" style="justify-content:center"><div class="name">전예진</div></div>
+          <p class="hi-contrast"><center> 全禮眞 | JEON YEJIN</center></p>
+          
+          
+          <div class="b-body" style="padding:0">
+            <div class="cap" style="text-align:center; padding:8px 0 6px; color:#374151; font-size:12px">Seoul, Korea</div>
+            <img src="https://cdn.discordapp.com/attachments/558313758942822422/1415899401465106483/a36a8c25581d93741dd9738de12abb8c233df5b9e071b8e62b4fab1880faebd3.jpg?ex=68c63413&is=68c4e293&hm=3036c49156cc5d1324518537b4505793e5fdc4cdb155b455ee78298aa585ca2b&" alt="placeholder portrait" />
+            <section class="block bio-card">
+              <div class="b-body" style="padding:0">
+                <div class="kv-table">
+                  <div class="k">출생</div><div class="v">2000년 9월 14일 (25세)<br> 경기도 서울특별시 강서구 마곡동 </div>
+                  <div class="k">국적</div><div class="v"> &#x1F1F0;&#x1F1F7 대한민국</div>
+                  <div class="k">신체</div><div class="v"> 171cm | O형 | 250mm | 1.5/1.5 | 50kg 예상</div>
+                  <div class="k">가족</div><div class="v"> 토모니, 토보지, 큰토니 전예지, 작은토니 전예영</div>
+                  <div class="k">MBTI</div><div class="v">INFP</div>
+                  <div class="k">화력</div><div class="v">상지초등학교 출신 (졸업) <br> 토끼중학교 (졸업) <br> 예일여자고등학교 (졸업) <br> 동남보건대학교 (졸업)</div>
+                  <div class="k">직업</div><div class="v">웹툰 작가 → 편의점 → 세연투섬내과의연 투석 간호사(미국 진출 준비)</div>
+                  <div class="k">거주지</div><div class="v">서울특별시 강서구 화곡동</div>
+<div class="k">수상/기록</div>
+<div class="v">한컴(타자연습) 챔피언 |
+  <a href="/images/first.jpg" target="_blank" rel="noopener">
+     상지 초등학교 3학년 1등
+  </a>
+</div>                 
+                  <div class="k">자격증 및 면허</div><div class="v">NCLEX 1회 합격 | TOEIC 1회 합격 <br> IELTS 1회 합격예상 <br> License NO:947321 RPN NY</div>
+                  <div class="k">좌우명</div><div class="v">하나님에게 맡기자</div>
+                  <div class="k">링크</div>
+                  <div class="v">
+                    <div class="sns">
+                      <a class="btn-ig" href="https://www.instagram.com/yejin" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <rect x="3" y="3" width="18" height="18" rx="5" ry="5"></rect>
+                          <circle cx="12" cy="12" r="3.5"></circle>
+                          <circle cx="17.5" cy="6.5" r="1.2" class="fill"></circle>
+                        </svg>
+                      </a>
+                      <a class="btn-li" href="https://www.linkedin.com/in/yejin-jeon-99744336b/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                          <circle cx="8" cy="7" r="1.25" class="fill"></circle>
+                          <path d="M8 17V10"></path>
+                          <path d="M12 17v-4a2 2 0 0 1 4 0v4"></path>
+                        </svg>
+                      </a>
+                          <button id="fabSpotify" class="spotify-fab" title="Play song" aria-label="Play song">
+  <!-- Spotify logo -->
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2zm4.52 14.51a.75.75 0 0 1-1.03.26 9.33 9.33 0 0 0-8.02-.59.75.75 0 0 1-.56-1.39 10.84 10.84 0 0 1 9.32.69.75.75 0 0 1 .29 1.03zm1.36-3.04a.9.9 0 0 1-1.24.32 12.1 12.1 0 0 0-10.41-.74.9.9 0 1 1-.64-1.68 13.9 13.9 0 0 1 11.93.86.9.9 0 0 1 .36 1.24zm.13-3.13a1.05 1.05 0 0 1-1.45.37 14.8 14.8 0 0 0-12.74-.82 1.05 1.05 0 1 1-.73-1.98 16.7 16.7 0 0 1 14.33.93 1.05 1.05 0 0 1 .59 1.5z"/>
+  </svg>
+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+
+      <!-- CONTENT SECTIONS -->
+      <main class="article" role="main" id="bio-sections">
+        <details id="overview" class="sec" open>
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">개요</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+             서울 망원동 출생.  축구와 크래이지 아케이드에 능하며,
+            이후 웹툰 작가 활동을 거쳐 현재는 미국 간호사 진출을 준비 중이다.
+            On top of that- A passionate and graceful person, she has faced hardship and always kept her head high. In a world that often settles, she found the drive to pursue nursing abroad and is now close to qualifying as a U.S. RN. Above all, after being born again, she has centered her life on Christ and strives to live out her faith day by day.
+          </div>
+        </details>
+
+        <details id="early" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">어린 시절</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+            어린 시절 인천에 살다가 다시 서울로 돌아왔다. 까꿍 놀이를 좋아하여 별명이 까궁이가 되었다.
+            또한 쭉쭉이™ 을 참좋아하여 어릴때 즐지는 놀이가 되었다, 어떤 사람들은  쭉쭉이™ 덕분에 키가 컸다고도 한다.
+            어릴 때 인기가 많아 “누가 안아 줄지” 가지고 가족이 다투는 바람에 울었다는 일화가 있다.
+            가끔 언니들 학교를 토머니와 찾아가 운동장을 걷기도했다
+    
+          </div>
+        </details>
+
+        <details id="elem" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">초등학교 시절</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+            상치 초등학교입학
+            망원동 시장을 자주가고 하며 동네 애들이랑 뛰어놀았다.
+
+            3학년 때 전교 1등  <a href="/images/first.jpg" target="_blank" rel="noopener">
+     상지 초등학교 3학년 1등</a>. 이뿐만 아니라 축구에 뛰어난 재능으로 주변 사람들이 ‘메시’ 라고 부르기 시작했다.
+        이강인 의 뺨을 칠수있다는 실력으로 소문이나며 축구에 제능이 많았던 아이였다.
+            크래이지 아케이드 게임은 프로급으로 알려졌고. 주말마다 <em>무한도전</em>을 가족이랑 즐겨 봤다.
+            별명 ‘까꿍이’, ‘까이’의 기원도 이 시기로 알려진다.
+            축구천재이고 도했지만, 독서를 좋아했던 아이였다. 책을 배달하고 교환하는 서비스를 사용하며
+            한 번은 책을 바굴려고 온 직원 책을 찾지 못해 곤란을 겪은 해프닝이 있었다 (큰토니 한테 혼남).
+            이어서 한번은 실수로 이단을 가서 작은토니한테 혼나고 방에 누워 기도를 하였다. 
+            토니들 이 혼나면 몰래 방으로 가서 책을피고 읽었다고한다.
+          </div>
+        </details>
+
+        <details id="middle" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">중학교 시절</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+            서울의 토끼중학교 재학. 성장이 많았던 시절
+             축구 재능이 뛰어났지만, 쭉쭉이 덕분에 키가 171cm 이되였다.
+            이걸보고 축구랑 거리를두고 농구에 중심하여 예진 조던이 된시절이다.
+            ‘중학교의 마이컬 조던’라는 농담 섞인 명성, “ESPN 패러디 이미지”도 돌았다.
+            이 시절에 운동 뿐만아니라 미술에도 재능이 많아서 웹툰작가도 했었다.
+            어느날 친구들이랑 동사무서에서 놀다가 어떤 남자 무리랑 어울리다가 스케이트보드를 타봤다고한다.
+            하지만 스케이트보드에서 넘어져 다치고 그게 흙역사 가되었다.
+            운동하고 두뇌실력만이 아니라 뮤지컬 황돌도했다.
+            아쉽게 뮤지컬 주연은 놓쳤지만 중요한 역활에 참여했다. 당시 별명은 ‘진격의거인’ 이였다는 소문도있다.
+            2013<em>어벤져스: 에이지 오브 울트론</em> 촬영이 동네 진행되어 관계들이 직접 전예진을 만나 훠락을 받았다
+            학교시절에도 인기가 많아 지현이란 찐친구를 만났다.
+
+            김치국물이라는 소리때문에 립스틱 색갈을 바군시절이며 일찐이 웃는다고 지랄해서 곰이 잡아먹은적이있다.
+            
+          </div>
+        </details>
+
+        <details id="high" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">고등학교 시절</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+           아이비리그 예일 여자 고등학교 입학.예일여자고등학교에 입학한 뒤 1학년까지는 프로 축구·농구·뮤지컬 배우 등 다양한 진로를 고민했다. 2학년에 들어서면서 마음을 공부로 돌려 ‘예일팸’과 함께 본격적으로 공부를 시작했고, 성적을 전교 40등권까지 끌어올렸다. 마라탕을 즐겨 먹었고 주말에는 홍대에 자주 놀러 갔다. 점심 후엔 늘 피크닉 사과주스를 마셨으며 "식후땡"이라고 불렀다. 같은 무리 중 한 명이 포도맛만 고집해 ‘싸이코’라는 별명이 붙었다는 소문도 있다. 이때 공부를 열심히하여 코피 한번나는 게 소원이였다. 한번에 고등학교 선생님은 거짓성행위로 나락같다고도 한다. 2년 동안 수능을 열심히 준비해 간호대학에 합격하고 토니들을따라 간호사 공부하기로 결정했다. 
+          졸울후 중학교 친구 지현이랑 첫술 마시로 갔다. 거기서 반병 마시고 기절했다는 소문이있다.
+           집에 돌아오는 길 엘리베이터에서 구토를 해 경비 아저씨가 크게 나무랐지만, “이보세요, 제가 치울게요. 잠깐만 기다려 주세요.” 하고 직접 말끔히 정리했다. 아저씨는 쫄아서 도망갔다.
+          </div>
+        </details>
+
+        <details id="college" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">대학 시절</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+           동남보건대학교 입학. 학업과 병행하여 편의점에서 파트타임으로 일했다. 모든 편의점에서 일을하고 여기서 이상한 사건도 터졌다. 어떤사람이 창고를 들어가서 사건이후로 키를 잘 보간해였다.
+           대학 1학년 때는 원룸에서 혼자 살기 시작했다. 첫해엔 거의 피자와 치킨, 각종 배달 음식으로 끼니를 때웠는데도 신기하게도 체형은 늘 탄탄했다. 
+           특히 학업 면에서도 매우 성실해 대학 1학년 때 학과 수석을 차지하며 장학금을 받았다. 
+           2학년에 들어서는 직접 요리를 시작해 실력이 쑥쑥 늘었고, 다양한  미각 덕분에 웬만한 메뉴는 뚝딱 만들어내는 ‘준(準)셰프’가 되었다. 그 즈음 주먹만 한 바퀴벌레를 마주하고 놀라 울음을 터뜨린 사건도 있었는데, 다행히 토모니와 토보지가 달려와 금세 해결해 주었다. 
+           공부하고 가끔 예일 친구들도  놀러왔다. 심심할때는 여러 여화를 즐겨봣따 한데. 
+           이때 미국을 두번 가서 뉴욕에 희망이 생겼다. 겨울에 한번 Queens 그리고 여름에 도 한번 놀러갔다. 여름에 네이버 카페에서 어떤 사람을 만나 같이 놀러다녔고. 아이스크림 먹다가 총기 사건에 걸릴가봐 토부를 강제로 잡고 뛰어나간적이 있다고한다. 
+           알바, 학교, 공부를 다하고 잠도 잘시간이 없던 갓생을 살았던 시기였다.
+          </div>
+        </details>
+
+        <details id="career" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">성인/커리어</span>
+            <a class="edit" href="">[편집]</a>
+            
+          </summary>
+<div class="content">
+  성인기에 들어서는 순간부터 간호에 완전히 집중했다. 2023년 4월부터 12월까지 히명병원(가칭) 혈액투석실 간호사로 근무하며, 새벽에 일어나 왕복 1시간 30분의 긴 통근을 견뎠다. 바쁜 현장과 인력난 속에서 “공부는 제대로 하고 왔냐?” 같은 차가운 말을 듣기도 했지만, 투석기 프라이밍·소독, 혈관접근(AVF/Permcath) 관리, 저혈압/경련 등 합병증 대응, 항응고요법 모니터링, 체액·건체중 관리, 기계 디스인펙션과 기록까지 현장 역량을 빠르게 채웠다. 하루가 끝나면 온몸이 무거웠지만 환자들이 “오늘 편했어요”라고 말해 줄 때마다 버틸 힘이 생겼다.
+  <br><br>
+  동시에 마음의 중심도 다시 세웠다. 가장 힘들던 어느 밤, 하나님께 삶을 맡기고 도우심을 구하는 기도를 드렸고, 그 이후 신앙이 일과 삶을 이끄는 기준이 되었다. 불안 대신 평안, 독주(獨走) 대신 동행(同行)을 배웠고, 다음 걸음을 준비할 용기를 얻었다.
+  <br><br>
+  이후 집에서 도보 20분 거리에 있는 세연투섬내과의원(투석실)로 합류했다. 장비·동선·프로토콜이 잘 정비된 환경에서 친절한 동료들과 팀을 이뤘고, 무엇보다 세심한 수간호사의 코칭 덕분에 환자 사정, 투석 전후 평가, 교육·상담, 팀 커뮤니케이션이 한층 단단해졌다. 근무 리듬이 안정되자 자기계발도 재개해 국제 진출 준비에 속도를 냈고, NCLEX 합격 이후에는 비자·라이선스 이관, IELTS 등 다음 단계 과제에 집중하고 있다. 힘든 시간을 지나면서도 배움을 놓지 않았고, 결국 성장과 방향성을 동시에 얻어 간호사로서의 소명을 더욱 확고히 했다.
+  좋은 병원에서 안정적으로 일하던 중에도 ‘미국으로 가겠다’는 꿈을 놓지 않았다. 그 꿈을 준비하는 과정에서 주말마다 교회에 나가기 시작했고, 예배와 소그룹에 꾸준히 참여하며 마음도 생활도 새로워졌다. 봉사도 시작했고 자연스레 좋은 친구들이 생겼으며, 영어 실력도 눈에 띄게 늘었다.
+  <br><br>
+  그러던 11월 24일, 소문 속 “곰돌이”가 등장했다. 처음엔 멀리서 손 한 번 흔든 인사가 전부였지만, “아쉽다”는 한마디와 함께 묘한 여운을 남겼다. 몇 달간 친구로 지내며 서로를 알아 갔고, 어느새 연인이 되었다. 지금도 둘은 하나님 안에서 서로를 세워 주며, 그 누구보다 아름다운 관계를 성숙하게 가꾸어 가는 중이다.
+</div>
+</div>
+
+        </details>
+
+        <details id="nursing" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">의료·간호 경력</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+            이전 근무 병원은 비공개. 현재 병원은 내부 별칭으로 ‘Bitch hospital’이라 부르기도 한다(친근한 속칭).
+            미국 간호사 면허 취득을 목표로 준비 중이며, 일본에서 첫 NCLEX를 응시해 150문항까지 도달했다.
+            본인은 “신을 만난 충격의 시험 경험”으로 묘사한다.
+          </div>
+        </details>
+
+        <details id="etc" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">별명·취미·기타</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+            Messi, Attack on Titan, 까꿍이, 까이 등 다양한 별명을 보유.
+            축구·크아아케이드 게임을 좋아하고,
+            신체는 키 171cm, 발 250mm.
+          </div>
+        </details>
+
+        <details id="future" class="sec">
+          <summary>
+            <span class="caret" aria-hidden="true"></span>
+            <span class="num" aria-hidden="true"></span>
+            <span class="title">소문 &amp; 미래</span>
+            <a class="edit" href="">[편집]</a>
+          </summary>
+          <div class="content">
+            “드림 웨딩”에 대한 소문이 있다. 미국 간호 진출 준비와 함께 개인적 미래 계획을 세우는 중.
+            가능하면 바다가 주변에서 하고싶다고한다 :)
+          </div>
+        </details>
+      </main>
+    </section>
+
+    <!-- RIGHT COLUMN -->
+    <aside class="rhs" aria-label="오른쪽 사이드바">
+      <div class="widget">
+        <div class="w-head">실시간 검색어</div>
+        <div class="b-body list">
+          <a href="">1 망원동 시장</a>
+          <a href="">2 한국 타자 챔피언</a>
+          <a href="">3 NCLEX</a>
+        </div>
+      </div>
+      <div class="widget">
+        <div class="w-head">최근 변경</div>
+        <div class="b-body list">
+          <a href="jeju.html">제주도 여행</a>
+          <a href="">이제 한살 누나 휴</a>
+          <a href="">별명 섹션 정리</a>
+        </div>
+      </div>
+    </aside>
+
+    <aside class="rhs-sticky" aria-label="오른쪽 사이드바(고정)">
+      <div class="widget">
+        <div class="w-head">바로가기</div>
+        <div class="b-body list">
+          <a href="#early">어린 시절</a>
+          <a href="#middle">중학교</a>
+          <a href="#nursing">간호 경력</a>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+
+  <!-- Floating action buttons -->
+  <div class="fab-rail" aria-label="빠른 이동">
+<button id="playSong">▶</button>
+  <audio id="song"
+         src="/audio/blackskirts.mp3"
+         preload="auto"
+         autoplay
+         muted
+         loop
+         playsinline></audio>
+<script>
+(() => {
+  const a   = document.getElementById('song');
+  const btn = document.getElementById('playSong');
+
+  // Unmute on the first user gesture anywhere
+  const unmute = () => {
+    a.muted = false;
+    a.volume = 1;
+    a.play().catch(() => {});
+    window.removeEventListener('pointerdown', unmute, true);
+    window.removeEventListener('keydown',   unmute, true);
+  };
+  window.addEventListener('pointerdown', unmute, true);
+  window.addEventListener('keydown',   unmute, true);
+
+  // Keep UI button as a play/pause toggle
+  const sync = () => { btn.textContent = a.paused ? '▶' : '⏸'; };
+  btn.addEventListener('click', () => {
+    // this click is a user gesture, so also unmute
+    if (a.muted) a.muted = false;
+    a.paused ? a.play() : a.pause();
+    sync();
+  });
+  a.addEventListener('play',  sync);
+  a.addEventListener('pause', sync);
+  sync();
+})();
+</script>
+<!-- tiny player panel (hidden until clicked) -->
+<div id="spotifyPanel" class="spotify-panel" aria-hidden="true">
+<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/33FQpvoRPEcEvobFMp988K?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+</div>
+
+    <button class="fab-toc" id="fabToc" title="목차로">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7 6h12M7 12h12M7 18h12"></path>
+        <circle cx="4" cy="6" r="1.2"></circle>
+        <circle cx="4" cy="12" r="1.2"></circle>
+        <circle cx="4" cy="18" r="1.2"></circle>
+      </svg>
+    </button>
+    <div class="fab-split" role="group" aria-label="상하 이동">
+      <button id="fabTop" title="맨 위로" aria-label="맨 위로">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6l-5 5m5-5l5 5M12 6v12"></path></svg>
+      </button>
+      <button id="fabBottom" title="맨 아래로" aria-label="맨 아래로">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18l5-5m-5 5l-5-5M12 18V6"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts (merged) -->
+  <script>
+    (function(){
+      const root = document.documentElement;
+      const btn = document.getElementById('btnUser');
+      const menu = document.getElementById('userMenu');
+
+      // theme: load saved
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+
+      // menu open/close
+      btn?.addEventListener('click', (e) => { e.stopPropagation(); menu.hidden = !menu.hidden; });
+      document.addEventListener('click', (e) => { if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) menu.hidden = true; });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') menu.hidden = true; });
+
+      // theme switch
+      menu?.addEventListener('click', (e) => {
+        const b = e.target.closest('.mi');
+        if (!b) return;
+        const theme = b.getAttribute('data-theme');
+        root.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        menu.hidden = true;
+      });
+
+      // scrolling helpers
+      const headerH = () => (document.querySelector('.sitebar')?.offsetHeight || 0) + 8;
+      const scrollToY = (y) => window.scrollTo({ top: y, behavior: 'smooth' });
+      const scrollToElTop = (el) => {
+        const y = el.getBoundingClientRect().top + window.pageYOffset - headerH();
+        scrollToY(Math.max(0, y));
+      };
+
+      document.getElementById('fabTop')?.addEventListener('click', () => scrollToY(0));
+      document.getElementById('fabBottom')?.addEventListener('click', () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        scrollToY(max);
+      });
+      document.getElementById('fabToc')?.addEventListener('click', () => {
+        const toc = document.getElementById('toc');
+        if (toc) scrollToElTop(toc);
+      });
+    })();
+  </script>
+  <!-- Floating letter icon -->
+<a id="letterFab" class="letter-fab" href="#" aria-label="편지 열기">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>
+    <path d="m3 7 9 6 9-6"/>
+  </svg>
+</a>
+<!-- Letter popup (starts OPEN) -->
+<div id="letterBackdrop"
+     class="letter-backdrop open"
+     role="dialog" aria-modal="true" aria-labelledby="letterHeading"
+     style="--letter-left-img:url('/images/4cut_yellow.jpg'); --letter-right-img:url('/images/4cutpurple.jpg');">
+
+  <div class="letter-stage">
+    <div class="letter-side left" aria-hidden="true"></div>
+
+    <!-- Center column (beige background) -->
+    <div class="letter-center">
+      <!-- MOVE THE LETTER INTO HERE -->
+      <article id="letterCard" class="letter-card">
+        <button id="letterClose" class="letter-close" type="button" aria-label="닫기">
+          <svg viewBox="0 0 24 24" stroke="#4a3d32" stroke-width="2" fill="none" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+
+        <div class="letter-corners" aria-hidden="true">
+          <span class="lc-tl"></span><span class="lc-tr"></span>
+          <span class="lc-bl"></span><span class="lc-br"></span>
+        </div>
+        <div class="letter-topbar">
+          <div class="letter-seal" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"
+       stroke="#5a4a3b" stroke-width="1.6"
+       stroke-linecap="round" stroke-linejoin="round"
+       style="width:22px;height:22px;opacity:.9">
+    <rect x="3" y="5" width="18" height="14" rx="3"></rect>
+    <path d="M3 7l9 6 9-6"></path>
+  </svg>
+          </div>
+          
+          <div>
+            <div id="letterHeading" class="letter-title"><center>To the Love of my Life </center></div>
+            <div class="letter-muted"></div>
+          </div>
+        </div>
+
+        <div class="paper-body">
+토끼야, 생일 축하해! <br><br>
+
+벌써 생일이라고? 시간이 참 빨리 가는 것 같아. 우리가 만난 지도 벌써 1년이 다 되어가고, 어덯게 또 누나가 됬네... 휴 ㅎ. 어떻게 보면 짧은 시간이지만, 그 안에서 정말 잊을 수 없는 추억도 많았고, 꼭 경험해보고 싶었던 것들을 자기랑 함께할 수 있어서 너무 행복하고 고마워.
+
+그리고 몇 년은 훌쩍 지난 것 같기도 해. <br><br> <s>너 </s>누나를 안 지 몇년도 된 것 같은 기분이야. 물론 떨어져 있는 시간이 많아서, 그 짧은 시간이 길게 느껴질 때도 있었지만 떨어져 있을 때도 토끼가 있다는게 항상 큰힘이됬어요.<br>혼자라면 부족할 때, <s>끼</s>기가 빠질때, 나를 위해서 못할때, 그럴때마다 예진이를 생각하면 끝까지 할 수 있었고, 정말 불가능한 일도 가능했어요. 이렇게 서로를 응원하고, 떨어져 있을 때도 기쁘게 지낼 수 있고, 같은 목표를 가지고 살아간다는 게 우리한테 얼마나 큰 축복인지 몰라. <br><br>
+As we turn the page into what I’m calling Chapter, I want us to continue to stay this way. I want us to keep choosing each other—keep our focus on us. Let’s grow, study side by side, and protect the time we give one another. I’ll be here for us as we step into what’s next. I know IELTS is front and center right now; it’s okay to be nervous, but I believe in you completely. You're a lot better than you think you love. But make sure you take care of yourself along the way, and if you can't I will for you.  I’ll keep supporting you every step, until you reach that goal of Australia, and before long, into our life together in America. I wonder how old we will be then haha.
+
+
+<br><br> Speaking of age, 25살이라는 건 정말 특별한 나이라고 생각해. 나는 아직 24살이지만, 25은 뭔가 진짜 성인이 되어 다음 단계를 들어가는 나이라고 생각이 들어. 그리고 그 다음단계를 걱정하고 같이 할사람들을 찻고 마음 급하게 생각 하는 사람들이 많은데.<br>  네 덕분에 그 길을 함께할 사람이 이미 생겼고, 나는 너와 함께 걸어가고 싶어.  그안에 우리 관께 자신감이 성장하고, 앞만볼수있다는게 얼마나 아름다운지 몰라.<br><br>
+
+이번 생일이 그 25세 milestone 이자 우리가 사귀고 나서 맞이하는 토끼의 첫 생일이라서 <br>더 특별한 뭔가를 해주고 싶었어. 꽃, 케이크야 당연한 거고 선물도 의미 있는 걸 주고 싶었어.<br> 그래서 예진이가 진짜 필요한 게 뭘까 고민하다가, 나이트 PRN 하면서 조금이라도 덜 힘들길 바라는 마음에 간호사들이 다 추천하는 신발을 골랐어.<br> 그때 생각 하면 눈물이 나온데 마음과 몸이 얼마나 힘들었을까?  정말 끝나서 다행이고 거기아니라도 신발 잘 신어줘 ❤<br><br>
+
+근데 마음이 그래도 뭔가 아쉽더라,  내가 느끼기에 tangible 선물들도 좋긴 하지만, 때로는 너무 쉽고 정성이 덜 들어간 것처럼 느껴질 때가 있어. 요변에는 약간 그런 생각이 들더라고. 그래서 더 진심을 담을려고  토끼가 좋아하는 나무위키를 따라 해서 “토끼위키”를 만들었어! 우리 둘만의 추억을 기록하는 특별한 공간으로. 곰이 많이 바빠서 다 채우진 못했지만 (솔직히 너무 많이 못 채운 것 같아 헤…). 그래도 앞으로 우리가 함께 성장하고 더 많은 추억을 만들면서 천천히 채워갔으면 좋겠어.<br><br> Maybe it can be a diary for us, a page for our memories. A little spoiler but 🤫 … I’m adding Jeju right now :).<br>
+Speaking of Jeju—was there ever a happier moment than that? I mean just that whole summer. Driving through a beautiful forest listening to our favorite songs, going to an amazing resort that had everything. A breathtaking view (though you were by far prettier), great breakfast, an infinity pool! Even a jacuzzi—though we had to turn on the jets secretly haha.<Br> Coming back, things didn’t even change. Every day was an adventure, a new thing with you—a new food, place, activity. And not just that, but to be able to see you with my eyes, not through a screen. To be able to touch and hold you—what a dream that was. Leaving you that day was one of the most depressing moments of my life. And yet, I never felt more confident that this would work. <br><br> Sadly though my fear, immaturity, and anger got in the way. We’ve had some rough patches since then, haven’t we? <br>때때로 두려움과 미성숙함 때문에 어려운 순간들도 있었어. 아마 그 과정에서 작은 흉터도 남았을 거고, 나도 종종 ‘우리 vs 문제’가 아니라 ‘너 vs 나’로 생각했던 순간들이 있었던 것 같아. 사랑이 두려움을 몰아내야 했는데, 오히려 내 부족한 사랑이 두려움을 만들기도 했지. 근데 그걸 지나면서 우리 관계가 더 단단해졌다고 생각해. <br>
+
+And those scars are disappearing—heck, they might be all gone already. And if they aren’t for you, then I will make sure they do. Because I want us to be whole, healed, and free. I want us to be able to love each other without fear, without walls, without barriers. I want us to be able to love each other fully and freely. <br><br>
+
+“Love is patient and kind; love does not envy or boast; it is not arrogant or rude. It does not insist on its own way; it is not irritable or resentful; it does not rejoice at wrongdoing, but rejoices with the truth. Love bears all things, believes all things, hopes all things, endures all things. Love never ends.”<br> — 1 Corinthians 13:4–8<br>
+
+As we continue to grow and take on life together, I pray that what we share now only becomes more beautiful—not drifting into arrogance or rudeness, not shaken by irritability or resentment, but flourishing into something deeper as we draw closer to that triangle, rooted in the grace, truth, and goodness of our Father.
+<br><br>
+Happy Birthday, my love. You are my greatest blessing.
+<br><br>
+Forever yours, <br><br>
+Caleb Lee                                                                 <br> <center><small>09/14/2025</small> </center>
+        </div>
+      </article>
+    </div>
+
+    <div class="letter-side right" aria-hidden="true"></div>
+  </div>
+</div>
+<script>
+(() => {
+  const backdrop = document.getElementById('letterBackdrop');
+  const card     = document.getElementById('letterCard');
+  const fab      = document.getElementById('letterFab');
+  const closeBtn = document.getElementById('letterClose');
+
+  let animating = false;
+  let wasClosedOnce = false;   // ← tracks if the letter has ever been closed
+
+  function showPopupFLIP(){
+    if (animating) return; animating = true;
+
+    // backdrop mode depending on first/next open
+    if (wasClosedOnce) {
+      backdrop.classList.remove('obscure');   // show page with blur
+    } else {
+      backdrop.classList.add('obscure');      // hide page completely
+    }
+
+    document.body.classList.add('no-scroll'); // lock page scroll
+    backdrop.classList.add('open');
+    backdrop.style.opacity = '0';
+
+    const to   = card.getBoundingClientRect();
+    const from = fab.getBoundingClientRect();
+
+    const clone = card.cloneNode(true);
+    Object.assign(clone.style,{
+      position:'fixed', margin:0, left:from.left+'px', top:from.top+'px',
+      width:from.width+'px', height:from.height+'px', zIndex:12000,
+      borderRadius:'16px', transformOrigin:'center center'
+    });
+    document.body.appendChild(clone);
+
+    const dx = (to.left + to.width/2) - (from.left + from.width/2);
+    const dy = (to.top + to.height/2) - (from.top + from.height/2);
+    const sx = to.width / from.width;
+    const sy = to.height / from.height;
+
+    clone.animate(
+      [
+        { transform:'translate(0,0) scale(1,1)', opacity:.98, borderRadius:'16px' },
+        { transform:`translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, opacity:1, borderRadius:getComputedStyle(card).borderRadius }
+      ],
+      { duration:650, easing:'cubic-bezier(.22,.61,.36,1)', fill:'forwards' }
+    ).onfinish = () => { clone.remove(); backdrop.style.opacity=''; animating=false; };
+  }
+
+  function minimizeToFab(){
+    if (animating) return; animating = true;
+
+    const from = card.getBoundingClientRect();
+    const to   = fab.getBoundingClientRect();
+
+    const clone = card.cloneNode(true);
+    Object.assign(clone.style,{
+      position:'fixed', margin:0, left:from.left+'px', top:from.top+'px',
+      width:from.width+'px', height:from.height+'px', zIndex:12000,
+      borderRadius:getComputedStyle(card).borderRadius,
+      willChange:'transform,opacity,border-radius'
+    });
+    document.body.appendChild(clone);
+
+    backdrop.classList.remove('open');
+
+    const dx = (to.left + to.width/2) - (from.left + from.width/2);
+    const dy = (to.top + to.height/2) - (from.top + from.height/2);
+    const sx = to.width / from.width;
+    const sy = to.height / from.height;
+
+    clone.animate(
+      [
+        { transform:'translate(0,0) scale(1,1)', opacity:1, borderRadius:getComputedStyle(card).borderRadius },
+        { transform:`translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, opacity:.98, borderRadius:'16px' }
+      ],
+      { duration:650, easing:'cubic-bezier(.22,.61,.36,1)', fill:'forwards' }
+    ).onfinish = () => {
+      clone.remove();
+      fab.classList.add('letter-pulse'); setTimeout(()=>fab.classList.remove('letter-pulse'),700);
+      document.body.classList.remove('no-scroll');  // unlock page scroll
+      wasClosedOnce = true;                         // subsequent opens use blur
+      backdrop.classList.remove('obscure');         // reset mode for next time
+      animating=false;
+    };
+  }
+
+  // Open/close bindings
+  fab.addEventListener('click', (e) => { e.preventDefault(); showPopupFLIP(); });
+  closeBtn.addEventListener('click', minimizeToFab);
+
+  // First load: already open → make it opaque and lock scroll; auto-minimize after 20s
+  window.addEventListener('load', () => {
+    if (backdrop.classList.contains('open')) {
+      backdrop.classList.add('obscure');     // fully hide the page on first open
+      document.body.classList.add('no-scroll');
+      setTimeout(() => {
+        if (backdrop.classList.contains('open')) minimizeToFab();
+      }, 1000000);
+    }
+  });
+})();
+</script>
+<script>
+(() => {
+  const btn = document.getElementById('fabSpotify');
+  const panel = document.getElementById('spotifyPanel');
+  if(!btn || !panel) return;
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    panel.classList.toggle('open');
+  });
+
+  // click-away to close
+  document.addEventListener('click', (e) => {
+    if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== btn) {
+      panel.classList.remove('open');
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
