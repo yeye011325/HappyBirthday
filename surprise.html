@@ -9,7 +9,7 @@
   <!-- Preload your GIF for a snappier first paint -->
   <link rel="preload" as="image" href="bear_heart_portrait.gif" />
   <!-- Prefetch the next page (make sure it's NOT this same file) -->
-  <link rel="prefetch" href="index.html" />
+  <link rel="prefetch" href="wiki.html" />
 
   <style>
     /* Page scaffold */
@@ -110,7 +110,7 @@
 -->
 <body
   data-gif="bear_heart_portrait.gif"
-  data-next="index.html"
+  data-next="wiki.html"
   data-duration="3700"
   aria-busy="true">
 
@@ -129,7 +129,7 @@
 
   <noscript>
     <div style="position:fixed;inset:0;display:grid;place-items:center;background:#000;color:#fff;text-align:center;padding:2rem;">
-      <p>This intro requires JavaScript. <a href="index.html" style="color:#fff;text-decoration:underline;">Continue</a></p>
+      <p>This intro requires JavaScript. <a href="wiki.html" style="color:#fff;text-decoration:underline;">Continue</a></p>
     </div>
   </noscript>
 
@@ -139,7 +139,7 @@
       const elSkip  = document.getElementById('skip');
 
       const cfgGif  = document.body.dataset.gif || 'splash.gif';
-      const cfgNext = document.body.dataset.next || 'index.html';
+      const cfgNext = document.body.dataset.next || 'wiki.html';
       const cfgDur  = Number(document.body.dataset.duration) || 4000; // HARD-CODED timer
 
       // Prevent self-redirect loops
