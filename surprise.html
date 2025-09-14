@@ -1,50 +1,194 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Wait for me please ❤</title>
-<style>
-  :root{
-    --bg:#0f172a; --card:#0b1220cc; --text:#e5e7eb; --muted:#94a3b8; --border:#33415566;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
-    background:
-      radial-gradient(60vmax 60vmax at 10% 10%, #1e293b 0, transparent 60%),
-      radial-gradient(70vmax 70vmax at 100% 0, #0b2538 0, transparent 60%),
-      var(--bg);
-    color:var(--text);
-    display:grid; place-items:center; padding:24px;
-  }
-  .wrap{
-    width:min(900px,94vw);
-    background:var(--card); border:1px solid var(--border);
-    border-radius:24px; box-shadow:0 10px 30px #0006; backdrop-filter: blur(10px);
-    padding:28px;
-    text-align:center;
-  }
-  h1{margin:0 0 8px; font-size:clamp(28px,4vw,44px)}
-  p{margin:0 0 16px; color:var(--muted)}
-  img{max-width:100%; height:auto; border-radius:16px; border:1px solid #1f2937; box-shadow:0 6px 18px #0007}
-  .back{display:inline-block; margin-top:16px; padding:10px 14px; border-radius:999px; text-decoration:none; color:#0b1220;
-    background:linear-gradient(135deg,#93c5fd,#a7f3d0); border:1px solid #ffffff40; font-weight:700}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Splash</title>
+
+  <!-- Preload your GIF for a snappier first paint -->
+  <link rel="preload" as="image" href="bear_heart_portrait.gif" />
+  <!-- Prefetch the next page (make sure it's NOT this same file) -->
+  <link rel="prefetch" href="index.html" />
+
+  <style>
+    /* Page scaffold */
+    html, body { height: 100%; margin: 0; }
+    body {
+      background: #0b0b0b;
+      color: #e6e6e6;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      overflow: hidden;
+    }
+
+    /* Stage centers the card and leaves a small margin around it */
+    .stage {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: clamp(8px, 3vw, 28px);
+      background: #0b0b0b;
+    }
+
+    /* The boxed container ("card") */
+    .card {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      width: min(96vw, 820px);
+      height: min(92vh, 1200px);
+      border: 1px solid #262626;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #111;                 /* card body */
+      box-shadow: 0 8px 40px rgba(0,0,0,.45);
+    }
+
+    /* Optional header like in your screenshot */
+    .card-header {
+      background: #141414;
+      border-bottom: 1px solid #262626;
+      text-align: center;
+      padding: 10px 14px 8px;
+    }
+    .card-title {
+      font-weight: 700;
+      color: #ffb02e;                   /* golden accent */
+      letter-spacing: .2px;
+    }
+    .card-sub {
+      font-size: .9rem;
+      color: #9b9b9b;
+      margin-top: 2px;
+    }
+
+    /* Media area holds the GIF */
+    .card-media {
+      position: relative;
+      background: #000;                  /* letterbox bars blend into page */
+    }
+    #splash {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;               /* show whole GIF inside the box */
+      /* Want it to crop and fill instead? change to: object-fit: cover; */
+      opacity: 0;
+      transition: opacity .2s ease;
+    }
+    #splash.ready { opacity: 1; }
+
+    /* Skip button */
+    .skip {
+      position: fixed;
+      right: clamp(12px, 2vw, 24px);
+      bottom: clamp(12px, 2vw, 24px);
+      padding: .6rem .9rem;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(0,0,0,.54);
+      color: #fff;
+      font: 600 0.95rem/1 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      z-index: 5;
+    }
+    .skip:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .skip { display: none; }
+    }
+  </style>
 </head>
-<body>
-  <main class="wrap">
-    <h1>Sneak peak🤫 </h1>
-    <h2>Wait Just a little longer please ❤❤❤ </h2>
-    <h2> When you're home tomorrow, I promise its worth it🐻 </h2>
-    <p>From me to you.</p>
-    <img
-      src="https://cdn.discordapp.com/attachments/558313758942822422/1416334604188520489/image.png?ex=68c677e3&is=68c52663&hm=9b186c1804f516a543f2ada19fe5733381e015f41909bee070102a6425d1b65b&"
-      alt="A special image">
-    <div>
-      <a class="back" href="index.html">← Back</a>
+
+<!--
+  Config (hard-coded timer):
+  - data-gif: path to your GIF
+  - data-next: page to go to after timer
+  - data-duration: length in ms (hard-coded; querystring is ignored)
+-->
+<body
+  data-gif="bear_heart_portrait.gif"
+  data-next="index.html"
+  data-duration="3700"
+  aria-busy="true">
+
+  <div class="stage">
+    <div class="card" role="group" aria-label="Intro">
+      <div class="card-header">
+        <div class="card-title">❤Thanks for waiting ❤</div>
+      </div>
+      <div class="card-media">
+        <img id="splash" alt="" aria-hidden="true" />
+      </div>
     </div>
-  </main>
+  </div>
+
+  <button id="skip" class="skip" type="button" aria-label="Skip intro and continue">Skip</button>
+
+  <noscript>
+    <div style="position:fixed;inset:0;display:grid;place-items:center;background:#000;color:#fff;text-align:center;padding:2rem;">
+      <p>This intro requires JavaScript. <a href="index.html" style="color:#fff;text-decoration:underline;">Continue</a></p>
+    </div>
+  </noscript>
+
+  <script>
+    (() => {
+      const elImg   = document.getElementById('splash');
+      const elSkip  = document.getElementById('skip');
+
+      const cfgGif  = document.body.dataset.gif || 'splash.gif';
+      const cfgNext = document.body.dataset.next || 'index.html';
+      const cfgDur  = Number(document.body.dataset.duration) || 4000; // HARD-CODED timer
+
+      // Prevent self-redirect loops
+      const nextURL = new URL(cfgNext, location.href).href;
+      const hereURL = location.href.split('#')[0];
+      const isSelf  = nextURL === hereURL;
+
+      const goNext = () => {
+        if (isSelf) { console.warn('[splash] Destination equals current page; not redirecting.'); return; }
+        location.replace(nextURL);
+      };
+
+      let timerId;
+
+      // Respect reduced motion preference
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        goNext();
+        return;
+      }
+
+      const startTimer = () => {
+        elImg.classList.add('ready');
+        document.body.removeAttribute('aria-busy');
+        if (timerId) clearTimeout(timerId);
+        timerId = setTimeout(goNext, Math.max(0, cfgDur));
+      };
+
+      const fastForward = () => { if (timerId) clearTimeout(timerId); goNext(); };
+      elSkip.addEventListener('click', fastForward);
+
+      // Load GIF and start timing once it's ready to paint
+      elImg.src = cfgGif;
+
+      if (elImg.complete) {
+        if ('decode' in elImg) elImg.decode().then(startTimer).catch(startTimer);
+        else startTimer();
+      } else {
+        elImg.addEventListener('load', () => {
+          if ('decode' in elImg) elImg.decode().then(startTimer).catch(startTimer);
+          else startTimer();
+        }, { once: true });
+
+        elImg.addEventListener('error', () => {
+          console.error('[splash] Failed to load GIF:', cfgGif);
+          fastForward(); // don’t strand the user
+        }, { once: true });
+      }
+    })();
+    //http://127.0.0.1:5500/bear.html
+  </script>
 </body>
 </html>
